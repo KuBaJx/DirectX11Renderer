@@ -244,6 +244,68 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthBufferDesc.CPUAccessFlags = 0;
 	depthBufferDesc.MiscFlags = 0;
+
+	// Now let's create Depth buffer using out description
+	result = m_device->CreateTexture2D(&depthBufferDesc, nullptr, &m_depthStencilBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Setup the desc of DepthStencil
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+	// Setup of the desc of the stencil state
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	
+	depthStencilDesc.DepthEnable = true;
+	// Must be HEX
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	// If pixel is front facing
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// IF pixel is back facing
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// When description is filled we can create depth stencil state
+	result = m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Set the depth stencil state
+	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
+
+
+	/* 
+	Next step is to create DepthStencilView description so Direct3D knows
+	to use DepthBuffer as a DepthStencil texture
+	*/
+
+	// Init DepthStencilView struct
+	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+
+	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+	// Create the DepthStencilView
+	result = m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
+	if (FAILED(result))
+	{
+		return false;
+	}
 }
 
 void D3DClass::Shutdown()
