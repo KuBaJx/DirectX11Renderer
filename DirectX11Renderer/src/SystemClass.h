@@ -13,13 +13,6 @@
 
 class SystemClass
 {
-private:
-	LPCSTR m_appName;
-	HINSTANCE m_hInstance;
-	HWND m_hWnd;
-
-	InputClass* m_Input;
-	GraphicsClass* m_Graphics;
 public:
 	SystemClass();
 	SystemClass(const SystemClass&);
@@ -35,9 +28,17 @@ private:
 	bool Frame();
 	void InitWindows(int&, int&);
 	void ShutdownWindows();
+
+private:
+	LPCSTR m_appName;
+	HINSTANCE m_hInstance;
+	HWND m_hWnd;
+	
+	InputClass* m_Input;
+	GraphicsClass* m_Graphics;
 };
 // Function proto
-static HRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 // Global class pointer
 static SystemClass* ApplicationHandle = nullptr;
