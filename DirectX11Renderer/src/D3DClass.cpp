@@ -26,7 +26,7 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	IDXGIFactory* factory;
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
-	DXGI_MODE_DESC* displayModeList;
+	DXGI_MODE_DESC1* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	D3D_FEATURE_LEVEL featureLevel;
@@ -45,7 +45,7 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	m_VSyncEnabled = vsync;
 
 	// Create DirectX graphics interface factory
-	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)factory);
+	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if (FAILED(result))
 	{
 		return false;
@@ -66,14 +66,14 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	}
 
 	// Get the number of modes that meets this requirements: DXGI_FORMAT_R8G8B8A8_UNORM display format
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, nullptr);
+	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED | DXGI_ENUM_MODES_SCALING, &numModes, NULL);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Create a list and populate it with all possible display modes for this Monitor/GPU combo
-	displayModeList = new DXGI_MODE_DESC[numModes];
+	displayModeList = new DXGI_MODE_DESC1[numModes];
 	if (!displayModeList)
 	{
 		return false;
@@ -306,9 +306,212 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	{
 		return false;
 	}
+
+	/* 
+	Now we need to set RTV -> 
+	This will bind RTV and DepthStencilBuffer to the output render pipeline. 
+	This will draw graphics from the pipeline to the backbuffer then we'll swap the
+	backbuffer to the front and display rendered image to the user
+	*/
+	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+
+
+	// Setup the rasterizer description -> this will determine how and what polys will be drawn
+	rasterizerDesc.AntialiasedLineEnable = false;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+	rasterizerDesc.DepthBias = 0;
+	rasterizerDesc.DepthBiasClamp = .0f;
+	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.FrontCounterClockwise = false;
+	rasterizerDesc.MultisampleEnable = false;
+	rasterizerDesc.ScissorEnable = false;
+	rasterizerDesc.SlopeScaledDepthBias = .0f;
+
+	// Create a rasterizer state from the filled description above
+	result = m_device->CreateRasterizerState(&rasterizerDesc, &m_rasterizerState);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Set the rasterizer state
+	m_deviceContext->RSSetState(m_rasterizerState);
+
+	// Also we need to setup viewport so Direct3D can clip space coords to the RT space.
+	viewport.Width = static_cast<float>(screenWidth);
+	viewport.Height = static_cast<float>(screenHeight);
+	viewport.MinDepth = .0f;
+	viewport.MaxDepth = 1.f;
+	viewport.TopLeftX = .0f;
+	viewport.TopLeftY = .0f;
+
+	// Create the viewport
+	m_deviceContext->RSSetViewports(1, &viewport);
+
+	/* 
+	Now we'll setup ProjectionMatrix ->
+	this will translate 3D coords to previously created 2D viewport space
+	*/
+
+	FOV = M_PI / 4.f;
+	screenAspect = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
+
+	// Create the ProjectionMatrix for 3D rendering
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(FOV, screenAspect, screenNear, screenDepth);
+
+	/* 
+	WorldMatrix -> this will translate vertices from our 3D models to 3D space
+	also this will be used to scale, translate, rotate our object
+	*/
+
+	// Init the WorldMatrix to the indentity matrix
+	m_worldMatrix = XMMatrixIdentity();
+
+	/*
+	Last thing is OrthographicMatrix -> this matrix will be used to render GUI and 2D elements
+	so we can skip 3D rendering which will save resources
+	*/
+
+	m_orthographicMatrix = XMMatrixOrthographicLH(static_cast<float>(screenWidth), static_cast<float>(screenHeight), screenNear, screenDepth);
+
+	return true;
 }
 
 void D3DClass::Shutdown()
 {
+	// Release all pointers used in Init function.
+	// !!! TODO: First we need to switch to the WINDOWED mode before releasing anything !!!
 
+	// Set to windowed
+	if (m_swapChain)
+	{
+		m_swapChain->SetFullscreenState(false, nullptr);
+	}
+
+	if (m_rasterizerState)
+	{
+		m_rasterizerState->Release();
+		m_rasterizerState = nullptr;
+	}
+
+	if (m_depthStencilView)
+	{
+		m_depthStencilView->Release();
+		m_depthStencilView = nullptr;
+	}
+
+	if (m_depthStencilState)
+	{
+		m_depthStencilState->Release();
+		m_depthStencilState = nullptr;
+	}
+
+	if (m_depthStencilBuffer)
+	{
+		m_depthStencilBuffer->Release();
+		m_depthStencilBuffer = nullptr;
+	}
+
+	if (m_renderTargetView)
+	{
+		m_renderTargetView->Release();
+		m_renderTargetView = nullptr;
+	}
+
+	if (m_deviceContext)
+	{
+		m_deviceContext->Release();
+		m_deviceContext = nullptr;
+	}
+
+	if (m_device)
+	{
+		m_device->Release();
+		m_device = nullptr;
+	}
+
+	if (m_swapChain)
+	{
+		m_swapChain->Release();
+		m_swapChain = nullptr;
+	}
+
+	return;
+}
+
+void D3DClass::BeginScene(float red, float green, float blue, float alpha)
+{
+	float color[4];
+
+	// Setup the color to clear the buffer to [Sets color buffer]
+	color[0] = red;
+	color[1] = green;
+	color[2] = blue;
+	color[3] = alpha;
+
+	// Clear the back buffer before rendering new image
+	m_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
+
+	// Clear the depth buffer
+	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.f, 0);
+
+	return;
+}
+
+void D3DClass::PresentScene()
+{
+	// Present the back buffer to the screen since rendering is complete
+	if (m_VSyncEnabled)
+	{
+		// Lock the refresh rate if VSYNC
+		m_swapChain->Present(1, 0);
+	}
+	else
+	{
+		// Present ASAP -> unlimited framerate / refresh rate
+		m_swapChain->Present(0, 0);
+	}
+
+	return;
+}
+
+ID3D11Device* D3DClass::GetDevice() const
+{
+	return m_device;
+}
+
+ID3D11DeviceContext* D3DClass::GetDeviceContext() const
+{
+	return m_deviceContext;
+}
+
+/// Helper functions that give copies of projection, world, orthographic matrices
+/// Most shaders will need these matrices for rendering so these helpers will come handy
+
+void D3DClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+{
+	projectionMatrix = m_projectionMatrix;
+	return;
+}
+
+void D3DClass::GetWorldMatrix(XMMATRIX& worldMatrix) 
+{
+	worldMatrix = m_worldMatrix;
+	return;
+}
+
+void D3DClass::GetOrthographicMatrix(XMMATRIX& orthographicMatrix)
+{
+	orthographicMatrix = m_orthographicMatrix;
+	return;
+}
+
+/// This helper will return name and VRAM of the GPU by reference 
+/// This will help if debugging is needed for different configs
+void D3DClass::GetGPUInfo(char* cardName, int& memory)
+{
+	strcpy_s(cardName, 128, m_videoCardDesc);
+	memory = m_videoCardMemory;
+	return;
 }

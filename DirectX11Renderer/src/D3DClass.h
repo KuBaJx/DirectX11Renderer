@@ -5,7 +5,10 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+constexpr float M_PI = 3.141592654f;
+
 #include <d3d11.h>
+#include <dxgi1_4.h>
 #include <DirectXMath.h>
 // Windows headers
 #include <Windows.h>
@@ -26,8 +29,8 @@ public:
 	void BeginScene(float, float, float, float);
 	void PresentScene();
 
-	ID3D11Device* GetDevice();
-	ID3D11DeviceContext* GetDeviceContext();
+	ID3D11Device* GetDevice() const;
+	ID3D11DeviceContext* GetDeviceContext() const;
 
 	void GetProjectionMatrix(XMMATRIX&);
 	void GetWorldMatrix(XMMATRIX&);
