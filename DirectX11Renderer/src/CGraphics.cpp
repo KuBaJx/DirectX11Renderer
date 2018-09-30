@@ -1,30 +1,30 @@
-#include "GraphicsClass.h"
+#include "CGraphics.h"
 
-GraphicsClass::GraphicsClass()
+CGraphics::CGraphics()
 {
 	// Initialize Direct3D pointer to NULL
 	m_Direct3D = nullptr;
 }
 
-GraphicsClass::GraphicsClass(const GraphicsClass& other)
+CGraphics::CGraphics(const CGraphics& other)
 {
 }
 
-GraphicsClass::~GraphicsClass()
+CGraphics::~CGraphics()
 {
 }
 
-bool GraphicsClass::Init(int screenWidth, int screenHeight, HWND hWnd)
+bool CGraphics::Init(int screenWidth, int screenHeight, HWND hWnd)
 {
 	bool result;
 
-	m_Direct3D = new D3DClass();
+	m_Direct3D = new CDirect3D();
 	if (!m_Direct3D)
 	{
 		return false;
 	}
 
-	result = m_Direct3D->Init(screenHeight, screenWidth, FULL_SCREEN, hWnd, VSYNC_ENABLED, SCREEN_DEPTH, SCREEN_NEAR);
+	result = m_Direct3D->Init(screenWidth, screenHeight, VSYNC_ENABLED, hWnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
 		MessageBox(hWnd, "Could not initialize Direct3D", "Error", MB_OK);
@@ -34,7 +34,7 @@ bool GraphicsClass::Init(int screenWidth, int screenHeight, HWND hWnd)
 	return true;
 }
 
-void GraphicsClass::Shutdown()
+void CGraphics::Shutdown()
 {
 	if (m_Direct3D)
 	{
@@ -45,7 +45,7 @@ void GraphicsClass::Shutdown()
 	return;
 }
 
-bool GraphicsClass::Frame()
+bool CGraphics::Frame()
 {
 	bool result;
 	
@@ -59,10 +59,10 @@ bool GraphicsClass::Frame()
 	return true;
 }
 
-bool GraphicsClass::Render()
+bool CGraphics::Render()
 {
 	// Clear the buffers to begin the scene
-	m_Direct3D->BeginScene(.5f, .5f, .5f, 1.f);
+	m_Direct3D->BeginScene(.5f, .3f, .2f, 1.f);
 
 	// Present the rendered scene to the screen
 	m_Direct3D->PresentScene();

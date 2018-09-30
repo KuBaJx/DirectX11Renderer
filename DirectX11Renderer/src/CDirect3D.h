@@ -10,18 +10,18 @@ constexpr float M_PI = 3.141592654f;
 #include <d3d11.h>
 #include <dxgi1_4.h>
 #include <DirectXMath.h>
-// Windows headers
-#include <Windows.h>
+// Custom
+#include "CFileSystem.h"
 
 using namespace DirectX;
 
 
-class D3DClass
+class CDirect3D
 {
 public:
-	D3DClass();
-	D3DClass(const D3DClass&);
-	~D3DClass();
+	CDirect3D();
+	CDirect3D(const CDirect3D&);
+	~CDirect3D();
 
 	bool Init(int&, int&, bool, HWND, bool, float, float);
 	void Shutdown();
@@ -53,5 +53,6 @@ private:
 	XMMATRIX m_projectionMatrix;
 	XMMATRIX m_worldMatrix;
 	XMMATRIX m_orthographicMatrix;
+	CFileSystem* m_fileSystem;
 };
 

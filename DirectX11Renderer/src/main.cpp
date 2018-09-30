@@ -1,12 +1,12 @@
-#include "SystemClass.h"
+#include "CSystem.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pSCmdLine, int nCmdShow)
 {
-	SystemClass* System;
+	CSystem* System;
 	bool result;
 
 	// Create the SystemClass object
-	System = new SystemClass();
+	System = new CSystem();
 	if (!System)
 	{
 		return 0;

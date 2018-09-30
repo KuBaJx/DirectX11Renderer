@@ -7,16 +7,16 @@
 #include <Windows.h>
 
 // Custom headers
-#include "GraphicsClass.h"
-#include "InputClass.h"
+#include "CGraphics.h"
+#include "CInput.h"
 
 
-class SystemClass
+class CSystem
 {
 public:
-	SystemClass();
-	SystemClass(const SystemClass&);
-	~SystemClass();
+	CSystem();
+	CSystem(const CSystem&);
+	~CSystem();
 
 	bool Init();
 	void Shutdown();
@@ -34,12 +34,12 @@ private:
 	HINSTANCE m_hInstance;
 	HWND m_hWnd;
 	
-	InputClass* m_Input;
-	GraphicsClass* m_Graphics;
+	CInput* m_Input;
+	CGraphics* m_Graphics;
 };
 // Function proto
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 // Global class pointer
-static SystemClass* ApplicationHandle = nullptr;
+static CSystem* ApplicationHandle = nullptr;
 

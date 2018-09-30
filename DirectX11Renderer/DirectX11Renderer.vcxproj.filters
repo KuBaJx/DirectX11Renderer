@@ -18,30 +18,36 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GraphicsClass.cpp">
+    <ClCompile Include="src\CFileSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\InputClass.cpp">
+    <ClCompile Include="src\CGraphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SystemClass.cpp">
+    <ClCompile Include="src\CSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\D3DClass.cpp">
+    <ClCompile Include="src\CInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CDirect3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\GraphicsClass.h">
+    <ClInclude Include="src\CFileSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\InputClass.h">
+    <ClInclude Include="src\CGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SystemClass.h">
+    <ClInclude Include="src\CSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\D3DClass.h">
+    <ClInclude Include="src\CInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CDirect3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

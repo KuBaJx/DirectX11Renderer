@@ -1,20 +1,20 @@
-#include "SystemClass.h"
+#include "CSystem.h"
 
-SystemClass::SystemClass()
+CSystem::CSystem()
 {
 	m_Graphics = nullptr;
 	m_Input = nullptr;
 }
 
-SystemClass::SystemClass(const SystemClass& other)
+CSystem::CSystem(const CSystem& other)
 {
 }
 
-SystemClass::~SystemClass()
+CSystem::~CSystem()
 {
 }
 
-bool SystemClass::Init()
+bool CSystem::Init()
 {
 	int screenWidth, screenHeight;
 	bool result;
@@ -27,7 +27,7 @@ bool SystemClass::Init()
 	InitWindows(screenWidth, screenHeight);
 
 	// Create a InputClass object -> This object will handle all the inputs
-	m_Input = new InputClass();
+	m_Input = new CInput();
 	if (!m_Input)
 	{
 		return false;
@@ -37,7 +37,7 @@ bool SystemClass::Init()
 	m_Input->Init();
 
 	// Create the GraphicsClass object -> This object will handle rendering graphics for this app
-	m_Graphics = new GraphicsClass();
+	m_Graphics = new CGraphics();
 	if (!m_Graphics)
 	{
 		return false;
@@ -53,7 +53,7 @@ bool SystemClass::Init()
 	return true;
 }
 
-void SystemClass::Shutdown()
+void CSystem::Shutdown()
 {
 	// Release the GraphicsClass object
 	if (m_Graphics)
@@ -76,7 +76,7 @@ void SystemClass::Shutdown()
 	return;
 }
 
-void SystemClass::Run()
+void CSystem::Run()
 {
 	MSG msg = {};
 	bool done, result;
@@ -115,7 +115,7 @@ void SystemClass::Run()
 	return;
 }
 
-bool SystemClass::Frame()
+bool CSystem::Frame()
 {
 	bool result;
 
@@ -135,7 +135,7 @@ bool SystemClass::Frame()
 	return true;
 }
 
-LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK CSystem::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
@@ -162,7 +162,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam
 	}
 }
 
-void SystemClass::InitWindows(int& screenWidth, int& screenHeight)
+void CSystem::InitWindows(int& screenWidth, int& screenHeight)
 {
 	WNDCLASSEX wc = {};
 	DEVMODE dmScreenSettings;
@@ -239,7 +239,7 @@ void SystemClass::InitWindows(int& screenWidth, int& screenHeight)
 	return;
 }
 
-void SystemClass::ShutdownWindows()
+void CSystem::ShutdownWindows()
 {
 	// Show the mouse cursor
 	ShowCursor(true);

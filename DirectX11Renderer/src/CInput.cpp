@@ -1,18 +1,18 @@
-#include "InputClass.h"
+#include "CInput.h"
 
-InputClass::InputClass()
+CInput::CInput()
 {
 }
 
-InputClass::InputClass(const InputClass& other)
+CInput::CInput(const CInput& other)
 {
 }
 
-InputClass::~InputClass()
+CInput::~CInput()
 {
 }
 
-void InputClass::Init()
+void CInput::Init()
 {
 	// Set all keys to released state
 	for (int i = 0; i < 256; i++)
@@ -21,7 +21,7 @@ void InputClass::Init()
 	}
 }
 
-void InputClass::KeyDown(unsigned int key)
+void CInput::KeyDown(unsigned int key)
 {
 	// If key is pressed save it's state to m_keys array
 	if (!m_keys[key])
@@ -31,7 +31,7 @@ void InputClass::KeyDown(unsigned int key)
 	return;
 }
 
-void InputClass::KeyUp(unsigned int key)
+void CInput::KeyUp(unsigned int key)
 {
 	if (m_keys[key])
 	{
@@ -40,7 +40,7 @@ void InputClass::KeyUp(unsigned int key)
 	return;
 }
 
-bool InputClass::IsKeyDown(unsigned int key) const
+bool CInput::IsKeyDown(unsigned int key) const
 {
 	// Return state of desired key
 	return m_keys[key];

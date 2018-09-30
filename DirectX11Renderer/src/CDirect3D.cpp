@@ -1,6 +1,6 @@
-#include "D3DClass.h"
+#include "CDirect3D.h"
 
-D3DClass::D3DClass()
+CDirect3D::CDirect3D()
 {
 	m_swapChain = nullptr;
 	m_device = nullptr;
@@ -10,23 +10,24 @@ D3DClass::D3DClass()
 	m_depthStencilState = nullptr;
 	m_depthStencilView = nullptr;
 	m_rasterizerState = nullptr;
+	m_fileSystem = nullptr;
 }
 
-D3DClass::D3DClass(const D3DClass& other)
+CDirect3D::CDirect3D(const CDirect3D& other)
 {
 }
 
-D3DClass::~D3DClass()
+CDirect3D::~CDirect3D()
 {
 }
 
-bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, bool fullscreen, float screenDepth, float screenNear)
+bool CDirect3D::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, bool fullscreen, float screenDepth, float screenNear)
 {
 	HRESULT result;
 	IDXGIFactory* factory;
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
-	DXGI_MODE_DESC1* displayModeList;
+	DXGI_MODE_DESC* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	D3D_FEATURE_LEVEL featureLevel;
@@ -66,15 +67,21 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	}
 
 	// Get the number of modes that meets this requirements: DXGI_FORMAT_R8G8B8A8_UNORM display format
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED | DXGI_ENUM_MODES_SCALING, &numModes, NULL);
+	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Create a list and populate it with all possible display modes for this Monitor/GPU combo
-	displayModeList = new DXGI_MODE_DESC1[numModes];
+	displayModeList = new DXGI_MODE_DESC[numModes];
 	if (!displayModeList)
+	{
+		return false;
+	}
+
+	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
+	if (FAILED(result))
 	{
 		return false;
 	}
@@ -83,9 +90,9 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	// When a match is found store the nominator and denominator of the refresh rate for this particular monitor
 	for (iterator = 0; iterator < numModes; iterator++)
 	{
-		if (displayModeList[iterator].Width == static_cast<unsigned int>(screenWidth))
+		if (displayModeList[iterator].Width == (unsigned int)screenWidth)
 		{
-			if (displayModeList[iterator].Height == static_cast<unsigned int>(screenHeight))
+			if (displayModeList[iterator].Height == (unsigned int)screenHeight)
 			{
 				numerator = displayModeList[iterator].RefreshRate.Numerator;
 				denominator = displayModeList[iterator].RefreshRate.Denominator;
@@ -110,9 +117,22 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 		return false;
 	}
 
+	// Write gpu info to a file
+	m_fileSystem = new CFileSystem("gpuinfo.log");
+	if (!m_fileSystem)
+	{
+		return false;
+	}
+
+	m_fileSystem->WriteToFile(m_videoCardDesc);
+
 	/* As we have Numerator and Denominator store we can release the structs and interfaces
 	   which were used to get that informations
 	*/
+
+	// Delete file system pointer since we already written gpu info to a file
+	delete m_fileSystem;
+	m_fileSystem = nullptr;
 
 	// Release displayModeList
 	delete[] displayModeList;
@@ -378,7 +398,7 @@ bool D3DClass::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd, 
 	return true;
 }
 
-void D3DClass::Shutdown()
+void CDirect3D::Shutdown()
 {
 	// Release all pointers used in Init function.
 	// !!! TODO: First we need to switch to the WINDOWED mode before releasing anything !!!
@@ -440,7 +460,7 @@ void D3DClass::Shutdown()
 	return;
 }
 
-void D3DClass::BeginScene(float red, float green, float blue, float alpha)
+void CDirect3D::BeginScene(float red, float green, float blue, float alpha)
 {
 	float color[4];
 
@@ -459,7 +479,7 @@ void D3DClass::BeginScene(float red, float green, float blue, float alpha)
 	return;
 }
 
-void D3DClass::PresentScene()
+void CDirect3D::PresentScene()
 {
 	// Present the back buffer to the screen since rendering is complete
 	if (m_VSyncEnabled)
@@ -476,12 +496,12 @@ void D3DClass::PresentScene()
 	return;
 }
 
-ID3D11Device* D3DClass::GetDevice() const
+ID3D11Device* CDirect3D::GetDevice() const
 {
 	return m_device;
 }
 
-ID3D11DeviceContext* D3DClass::GetDeviceContext() const
+ID3D11DeviceContext* CDirect3D::GetDeviceContext() const
 {
 	return m_deviceContext;
 }
@@ -489,19 +509,19 @@ ID3D11DeviceContext* D3DClass::GetDeviceContext() const
 /// Helper functions that give copies of projection, world, orthographic matrices
 /// Most shaders will need these matrices for rendering so these helpers will come handy
 
-void D3DClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+void CDirect3D::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
 	return;
 }
 
-void D3DClass::GetWorldMatrix(XMMATRIX& worldMatrix) 
+void CDirect3D::GetWorldMatrix(XMMATRIX& worldMatrix) 
 {
 	worldMatrix = m_worldMatrix;
 	return;
 }
 
-void D3DClass::GetOrthographicMatrix(XMMATRIX& orthographicMatrix)
+void CDirect3D::GetOrthographicMatrix(XMMATRIX& orthographicMatrix)
 {
 	orthographicMatrix = m_orthographicMatrix;
 	return;
@@ -509,7 +529,7 @@ void D3DClass::GetOrthographicMatrix(XMMATRIX& orthographicMatrix)
 
 /// This helper will return name and VRAM of the GPU by reference 
 /// This will help if debugging is needed for different configs
-void D3DClass::GetGPUInfo(char* cardName, int& memory)
+void CDirect3D::GetGPUInfo(char* cardName, int& memory)
 {
 	strcpy_s(cardName, 128, m_videoCardDesc);
 	memory = m_videoCardMemory;
