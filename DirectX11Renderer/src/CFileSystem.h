@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 #include <fstream>
 
 class CFileSystem
@@ -12,6 +13,6 @@ public:
 	CFileSystem(const CFileSystem&);
 	~CFileSystem();
 
-	void WriteToFile(const char*);
+	void WriteToFile(std::string&);
 };
 

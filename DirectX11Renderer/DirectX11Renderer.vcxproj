@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\CColorShader.cpp" />
     <ClCompile Include="src\CFileSystem.cpp" />
     <ClCompile Include="src\CDirect3D.cpp" />
     <ClCompile Include="src\CGraphics.cpp" />
@@ -27,11 +28,16 @@
     <ClCompile Include="src\CSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CColorShader.h" />
     <ClInclude Include="src\CFileSystem.h" />
     <ClInclude Include="src\CDirect3D.h" />
     <ClInclude Include="src\CGraphics.h" />
     <ClInclude Include="src\CInput.h" />
     <ClInclude Include="src\CSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\color.ps" />
+    <None Include="res\color.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

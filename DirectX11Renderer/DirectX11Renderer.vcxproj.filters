@@ -33,6 +33,9 @@
     <ClCompile Include="src\CDirect3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\CColorShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CFileSystem.h">
@@ -50,5 +53,12 @@
     <ClInclude Include="src\CDirect3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\CColorShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\color.vs" />
+    <None Include="res\color.ps" />
   </ItemGroup>
 </Project>

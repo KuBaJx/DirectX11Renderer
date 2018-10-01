@@ -124,7 +124,9 @@ bool CDirect3D::Init(int& screenWidth, int& screenHeight, bool vsync, HWND hWnd,
 		return false;
 	}
 
-	m_fileSystem->WriteToFile(m_videoCardDesc);
+	std::string msg = "[GPU INFO]: ";
+
+	m_fileSystem->WriteToFile(msg.append(m_videoCardDesc));
 
 	/* As we have Numerator and Denominator store we can release the structs and interfaces
 	   which were used to get that informations
@@ -463,9 +465,11 @@ void CDirect3D::Shutdown()
 void CDirect3D::BeginScene(float red, float green, float blue, float alpha)
 {
 	float color[4];
+	float modifier = (sin(static_cast<float>(timeGetTime())) / 2) + .5f;
+
 
 	// Setup the color to clear the buffer to [Sets color buffer]
-	color[0] = red;
+	color[0] = red + modifier;
 	color[1] = green;
 	color[2] = blue;
 	color[3] = alpha;

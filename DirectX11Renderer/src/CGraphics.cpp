@@ -62,14 +62,14 @@ bool CGraphics::Frame()
 bool CGraphics::Render()
 {
 	// Clear the buffers to begin the scene
-	m_Direct3D->BeginScene(.5f, .3f, .2f, 1.f);
+
+	m_Direct3D->BeginScene(0.2f, .0f, .5f, 1.f);
 
 	// Present the rendered scene to the screen
 	m_Direct3D->PresentScene();
 
 	return true;
 }
-
 
 
 

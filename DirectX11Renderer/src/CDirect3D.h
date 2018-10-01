@@ -4,6 +4,8 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
+// Time 
+#pragma comment(lib, "winmm.lib")
 
 constexpr float M_PI = 3.141592654f;
 

@@ -19,7 +19,7 @@ CFileSystem::~CFileSystem()
 	m_file.close();
 }
 
-void CFileSystem::WriteToFile(const char* msg)
+void CFileSystem::WriteToFile(std::string& msg)
 {
-	m_file << "[GPU NAME]: " << msg << std::endl;
+	m_file << msg << std::endl;
 }
